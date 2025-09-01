@@ -4,7 +4,7 @@
     /// Represents a request that produces a response when handled.
     /// </summary>
     /// <typeparam name="TResponse">The type of the response.</typeparam>
-    public interface IRequest<TResponse>
+    public interface IRequest<out TResponse>
     {
     }
     /// <summary>
