@@ -1,6 +1,6 @@
 ﻿namespace MediatRaptor.CQRS.Queries
 {
-    public interface ILoggableQuery<TResponse> : IQuery<TResponse>
+    public interface ILoggableQuery<out TResponse> : IQuery<TResponse>
     {
     }
 
