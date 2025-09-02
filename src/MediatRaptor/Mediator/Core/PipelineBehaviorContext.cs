@@ -5,6 +5,12 @@
     /// </summary>
     public sealed class PipelineBehaviorContext
     {
+        public CancellationToken CancellationToken { get; }
+
+        public PipelineBehaviorContext(CancellationToken cancellationToken)
+        {
+            CancellationToken = cancellationToken;
+        }
         // Add fields/properties later if you need metadata flowing through pipeline.
     }
 }
