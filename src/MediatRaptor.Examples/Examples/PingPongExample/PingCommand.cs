@@ -1,8 +1,8 @@
-﻿using MediatRaptor.Mediator.Abstractions;
+﻿using MediatRaptor.CQRS.Commands;
 
 namespace MediatRaptor.Examples.Examples.PingPongExample
 {
-    public class PingCommand : IRequest<string>
+    public class PingCommand : ICommand<string>
     {
         public string Message { get; }
 

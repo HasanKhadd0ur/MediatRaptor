@@ -1,8 +1,9 @@
-﻿using MediatRaptor.Mediator.Abstractions;
+﻿using MediatRaptor.CQRS.Commands;
+using MediatRaptor.Mediator.Abstractions;
 
 namespace MediatRaptor.Examples.Examples.PingPongExample
 {
-    public class PingCommandHandler : IRequestHandler<PingCommand, string>
+    public class PingCommandHandler : ICommandHandler<PingCommand, string>
     {
         private readonly IMediator _mediator;
 
