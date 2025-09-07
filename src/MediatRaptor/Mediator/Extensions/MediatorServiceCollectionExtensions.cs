@@ -9,37 +9,32 @@ namespace MediatRaptor.Mediator.Core
         /// <summary>
         /// Registers the Mediator and scans the provided assemblies for handlers.
         /// </summary>
-        public static IServiceCollection AddMediatRaptor(this IServiceCollection services, params Assembly[] assembliesToScan)
+        public static IServiceCollection AddMediatRaptor(this IServiceCollection services, params Assembly[] assemblies)
         {
-            // Register service factory used by the Mediator
-            services.AddSingleton<ServiceFactory>(sp => sp.GetService);
+            services.AddScoped<IMediator, Mediator>();
+            services.AddScoped<ServiceFactory>(sp => t => sp.GetService(t)!);
 
-
-            // Register Mediator
-            services.AddSingleton<IMediator, Mediator>();
-
-
-            // Register all request handlers and notification handlers discovered in assemblies
-            var types = assembliesToScan.SelectMany(a => a.DefinedTypes).Where(t => !t.IsAbstract && !t.IsInterface).ToList();
-
-
-            foreach (var type in types)
+            // Register all handlers
+            foreach (var assembly in assemblies)
             {
-                foreach (var iface in type.ImplementedInterfaces)
-                {
-                    if (!iface.IsGenericType) continue;
-                    var genDef = iface.GetGenericTypeDefinition();
-                    if (genDef == typeof(IRequestHandler<,>) || genDef == typeof(IRequestHandler<>))
-                    {
-                        services.AddTransient(iface, type.AsType());
-                    }
-                    else if (genDef == typeof(INotificationHandler<>))
-                    {
-                        services.AddTransient(iface, type.AsType());
-                    }
-                }
-            }
+                services.Scan(scan => scan
+                    .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(IRequestHandler<,>)))
+                    .AsImplementedInterfaces()
+                    .WithScopedLifetime());
 
+                services.Scan(scan => scan
+                    .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<>)))
+                    .AsImplementedInterfaces()
+                    .WithScopedLifetime());
+
+                services.Scan(scan => scan
+                    .FromAssemblies(assembly)
+                    .AddClasses(classes => classes.AssignableTo(typeof(IPipelineBehavior<,>)))
+                    .AsImplementedInterfaces()
+                    .WithScopedLifetime());
+            }
 
             return services;
         }
