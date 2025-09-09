@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36119.2 d17.14
+VisualStudioVersion = 17.14.36119.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source Code", "Source Code", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediatRaptor", "src\MediatRaptor\MediatRaptor.csproj", "{9C8D024B-4D8E-4852-BB76-2E22F76EF0E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediatRaptor.Examples", "src\MediatRaptor.Examples\MediatRaptor.Examples.csproj", "{EEAC05AC-2E07-4973-A1E9-B748290A25A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediatRaptor.Tests", "test\MediatRaptor.Tests\MediatRaptor.Tests.csproj", "{47EAFCC4-BB90-4765-9CDC-6C4872E20840}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{EEAC05AC-2E07-4973-A1E9-B748290A25A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEAC05AC-2E07-4973-A1E9-B748290A25A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEAC05AC-2E07-4973-A1E9-B748290A25A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47EAFCC4-BB90-4765-9CDC-6C4872E20840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47EAFCC4-BB90-4765-9CDC-6C4872E20840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47EAFCC4-BB90-4765-9CDC-6C4872E20840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47EAFCC4-BB90-4765-9CDC-6C4872E20840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +44,7 @@ Global
 		{47ED9CC7-0F34-46FD-B466-8E8E94048474} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9C8D024B-4D8E-4852-BB76-2E22F76EF0E4} = {2F3881CB-6A8E-4D43-8356-F523E813D958}
 		{EEAC05AC-2E07-4973-A1E9-B748290A25A3} = {47ED9CC7-0F34-46FD-B466-8E8E94048474}
+		{47EAFCC4-BB90-4765-9CDC-6C4872E20840} = {D6070DBB-2502-4387-82D2-7E7BF266D28E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8FED80C4-DC7C-464D-9862-2C35E23B9274}
