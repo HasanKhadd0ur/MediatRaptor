@@ -1,5 +1,9 @@
 # 🦖 MediatRaptor
 ---
+<p align="center">
+  <img src="./assets/package-image.png" alt="package-image" />
+</p>
+
 ## 📄 Project Description
 
 **MediatRaptor** is a lightweight and extensible implementation of the **Mediator** pattern with built-in support for **CQRS (Command Query Responsibility Segregation)**.
@@ -44,15 +48,14 @@ dotnet add package MediatRaptor
 MediatRaptor/
 │
 ├── src/
+│   ├── examples/   # Example project using MediatRaptor
 │   └── MediatRaptor/
 │       ├── Mediator/       # Core mediator abstractions and pipeline
 │       ├── CQRS/           # CQRS-specific slices (commands, queries, handlers)
 │       └── MediatRaptor.csproj
+│      
 │
-├── examples/
-│   └── ConsoleApp/         # Example project using MediatRaptor
-│
-├── tests/
+├── test/
 │   └── MediatRaptor.Tests/ # Unit tests
 │
 └── README.md
@@ -84,9 +87,13 @@ public class CreateUserHandler : ICommandHandler<CreateUserCommand, Guid>
 ### 3. Use the Mediator
 
 ```csharp
-var mediator = new MediatorRaptor(cfg =>
+var mediator = new Mediator(type =>
 {
-    cfg.RegisterHandlers(typeof(CreateUserHandler).Assembly);
+    // Simple factory for resolving handlers
+    if (type == typeof(IRequestHandler<CreateUserCommand, Guid>))
+        return new CreateUserHandler();
+
+    return null;
 });
 
 var userId = await mediator.Send(new CreateUserCommand("hasan", "test@example.com"));
@@ -96,7 +103,7 @@ var userId = await mediator.Send(new CreateUserCommand("hasan", "test@example.co
 
 ## 🧪 Examples
 
-Check the [`examples/`](./examples) folder for runnable projects:
+Check the [`src/examples/`](./src/examples) folder for runnable projects:
 
 * **ConsoleApp** – basic CQRS setup with commands, queries, and handlers
 
@@ -104,10 +111,10 @@ Check the [`examples/`](./examples) folder for runnable projects:
 
 ## 🛠️ Roadmap
 
-* [ ] Publish NuGet package
-* [ ] Add notification/event broadcasting
-* [ ] Add pipeline behaviors (logging, validation)
-* [ ] ASP.NET Core integration package
+* ✅ Publish NuGet package
+* ✅ Add notification/event broadcasting
+* ✅ Add pipeline behaviors (logging, validation)
+* ✅ ASP.NET Core integration package
 
 ---
 
