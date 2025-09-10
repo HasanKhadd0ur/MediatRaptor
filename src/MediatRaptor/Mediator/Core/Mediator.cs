@@ -7,26 +7,43 @@ namespace MediatRaptor.Mediator.Core
     /// </summary>
     public class Mediator : IMediator
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ServiceFactory _serviceFactory;
 
-        public Mediator(IServiceProvider serviceProvider)
+        public Mediator(ServiceFactory serviceFactory)
         {
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
 
         public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
-            var handlerType = typeof(IRequestHandler<,>).MakeGenericType(request.GetType(), typeof(TResponse));
-            var handler = _serviceProvider.GetService(handlerType);
+            var requestType = request.GetType();
+            var handlerType = typeof(IRequestHandler<,>).MakeGenericType(requestType, typeof(TResponse));
 
+            // Resolve the correct closed generic handler
+            var handler = _serviceFactory(handlerType);
             if (handler == null)
-                throw new InvalidOperationException($"No handler found for request type {request.GetType().Name}");
+                throw new HandlerNotFoundException(requestType);
 
-            return await (Task<TResponse>)handlerType
-                .GetMethod("Handle")!
-                .Invoke(handler, new object[] { request, cancellationToken })!;
+            // Resolve pipeline behaviors for this exact request/response pair
+            var behaviorType = typeof(IPipelineBehavior<,>).MakeGenericType(requestType, typeof(TResponse));
+            var behaviors = ((IEnumerable<object>?)_serviceFactory(typeof(IEnumerable<>).MakeGenericType(behaviorType)))
+                ?.Cast<dynamic>()
+                .ToList() ?? new List<dynamic>();
+
+            // Build handler delegate
+            RequestHandlerDelegate<TResponse> handlerDelegate =
+                () => ((dynamic)handler).Handle((dynamic)request, cancellationToken);
+
+            // Wrap with pipeline behaviors (last one closest to handler)
+            foreach (var behavior in behaviors.AsEnumerable().Reverse())
+            {
+                var next = handlerDelegate;
+                handlerDelegate = () => behavior.Handle((dynamic)request, cancellationToken, next);
+            }
+
+            return await handlerDelegate();
         }
 
         public async Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
@@ -34,20 +51,14 @@ namespace MediatRaptor.Mediator.Core
         {
             if (notification == null) throw new ArgumentNullException(nameof(notification));
 
-            var handlerType = typeof(IEnumerable<>).MakeGenericType(typeof(INotificationHandler<>).MakeGenericType(notification.GetType()));
-            var handlers = (IEnumerable<object>)_serviceProvider.GetService(handlerType)! ?? Enumerable.Empty<object>();
+            var handlers = _serviceFactory.GetInstances<INotificationHandler<TNotification>>(typeof(TNotification)).ToList();
 
             foreach (var handler in handlers)
-            {
-                var method = handler.GetType().GetMethod("Handle")!;
-                await (Task)method.Invoke(handler, new object[] { notification, cancellationToken })!;
-            }
+                await handler.Handle(notification, cancellationToken);
         }
+
+        
+        
     }
-    /// <summary>
-    /// DI factory used by the Mediator to resolve handlers & behaviors.
-    /// Compatible with constructors taking Func<Type, object?> or equivalent.
-    /// </summary>
-    public delegate object? ServiceFactory(Type serviceType);
 
 }

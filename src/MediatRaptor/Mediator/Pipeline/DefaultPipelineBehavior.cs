@@ -8,7 +8,10 @@ namespace MediatRaptor.Mediator.Core
     public sealed class DefaultPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     {
-        public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-        => next();
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        {
+            // No-op by default (just pass through)
+            return await next();
+        }
     }
 }

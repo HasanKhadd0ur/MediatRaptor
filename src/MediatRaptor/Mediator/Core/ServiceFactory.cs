@@ -1,29 +1,36 @@
 ﻿namespace MediatRaptor.Mediator.Core
 {
-    internal static class ServiceFactoryExtensions
+    /// <summary>
+    /// DI factory used by the Mediator to resolve handlers & behaviors.
+    /// Compatible with constructors taking Func<Type, object?> or equivalent.
+    /// </summary>
+    public delegate object? ServiceFactory(Type serviceType);
+
+    public static class ServiceFactoryExtensions
     {
-        public static IEnumerable<object> GetInstances(this ServiceFactory factory, Type sequenceType)
+        public static T? GetInstance<T>(this ServiceFactory factory, params Type[] genericTypes)
         {
-            // sequenceType is expected to be IEnumerable<T>
-            var type = sequenceType;
-            if (factory == null) yield break;
+            var type = typeof(T);
 
+            if (type.IsGenericTypeDefinition)
+            {
+                type = type.MakeGenericType(genericTypes);
+            }
 
-            var resolved = factory(type);
-            if (resolved is IEnumerable<object> en)
+            return (T?)factory(type);
+        }
+
+        public static IEnumerable<T> GetInstances<T>(this ServiceFactory factory, params Type[] genericTypes)
+        {
+            var type = typeof(T);
+
+            if (type.IsGenericTypeDefinition)
             {
-                foreach (var x in en)
-                    yield return x;
+                type = type.MakeGenericType(genericTypes);
             }
-            else if (resolved is System.Collections.IEnumerable ien)
-            {
-                foreach (var obj in ien)
-                    yield return obj!;
-            }
-            else if (resolved != null)
-            {
-                yield return resolved;
-            }
+
+            var enumerableType = typeof(IEnumerable<>).MakeGenericType(type);
+            return (IEnumerable<T>)(factory(enumerableType) ?? Array.Empty<T>());
         }
     }
 }
