@@ -15,8 +15,4 @@
     <ProjectReference Include="..\MediatRaptor\MediatRaptor.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Examples\UserNotificationsExample\" />
-  </ItemGroup>
-
 </Project>

@@ -26,22 +26,24 @@ namespace MediatRaptor.Mediator.Core
             if (handler == null)
                 throw new HandlerNotFoundException(requestType);
 
-            // Resolve pipeline behaviors
+            // Resolve pipeline behaviors for this exact request/response pair
             var behaviorType = typeof(IPipelineBehavior<,>).MakeGenericType(requestType, typeof(TResponse));
             var behaviors = ((IEnumerable<object>?)_serviceFactory(typeof(IEnumerable<>).MakeGenericType(behaviorType)))
                 ?.Cast<dynamic>()
                 .ToList() ?? new List<dynamic>();
 
-            // Build the request delegate dynamically
-            RequestHandlerDelegate<TResponse> handlerDelegate = () =>
-                ((dynamic)handler).Handle((dynamic)request, cancellationToken);
+            // Build handler delegate
+            RequestHandlerDelegate<TResponse> handlerDelegate =
+                () => ((dynamic)handler).Handle((dynamic)request, cancellationToken);
 
-            var pipelineExecutor = new PipelineBehaviorExecutor<IRequest<TResponse>, TResponse>(
-                behaviors.Cast<IPipelineBehavior<IRequest<TResponse>, TResponse>>().ToList(),
-                handlerDelegate
-            );
+            // Wrap with pipeline behaviors (last one closest to handler)
+            foreach (var behavior in behaviors.AsEnumerable().Reverse())
+            {
+                var next = handlerDelegate;
+                handlerDelegate = () => behavior.Handle((dynamic)request, cancellationToken, next);
+            }
 
-            return await pipelineExecutor.Execute((dynamic)request, cancellationToken);
+            return await handlerDelegate();
         }
 
         public async Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
